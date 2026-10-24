@@ -6,7 +6,6 @@
 [![npm downloads](https://img.shields.io/npm/dm/pi-gimme.svg)](https://www.npmjs.com/package/pi-gimme)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pi package](https://img.shields.io/badge/pi-package-purple.svg)](https://pi.dev/packages)
-[![Trusted Publishing](https://img.shields.io/badge/npm-Trusted%20Publishing-blue.svg)](docs/release.md)
 
 > Extract structured data from Pi without constraining the thinking process.
 
@@ -34,6 +33,31 @@ There might also be some validation needs. For example, maybe a PR comment shoul
 
   > Validation along with model guidance. Thrown errors get sent to the model and another attempt is given.
 
+- `pi --gimme 'gimme(title: string)' --gimme 'submit_pr_comment(body: string)'`
+
+  > Pass `--gimme` multiple times to register multiple tools. Each output is prefixed with a `_tool` field naming the tool that produced it.
+
+## How it works
+
+Each `--gimme` flag takes a tool signature of the form `name(param: type, ...) [ { validation } ]`:
+
+- Supported parameter types: `string`, `number`, `boolean`, and arrays of any of those (`string[]`, `number[]`, `boolean[]`).
+- The optional `{ ... }` block runs as JavaScript on every call, with the parsed arguments in scope as variables. Throwing an error sends the error message back to the model for another attempt.
+- Attempts are capped by `--gimme-max-attempts` (default 3). The package manages the cap itself rather than relying on Pi's unbounded tool-error loop.
+- The tool name `_error` is reserved and rejected at startup.
+
+In `-p` mode the user sees only the tool result as a single-line JSON object:
+
+```json
+{"_tool":"gimme","title":"x","body":"y"}
+```
+
+When validation is exhausted, the output is:
+
+```json
+{"_tool":"_error","_error":"exhaustion","message":"<last validation error>"}
+```
+
 ## Install
 
 Install the published npm package with Pi:
@@ -45,7 +69,7 @@ pi install npm:pi-gimme
 Pin a specific version when you want reproducible installs:
 
 ```bash
-pi install npm:pi-gimme@0.3.1
+pi install npm:pi-gimme@0.1.0
 ```
 
 Install into the current project instead of your user Pi settings:
@@ -63,7 +87,7 @@ pi install git:github.com/player1537/pi-gimme
 Try it without permanently installing:
 
 ```bash
-pi -e npm:pi-gimme --gimme 'gimme(reply: string)' -p 'Reply with "testing 123"'
+pi -e npm:pi-gimme --gimme 'gimme(reply: string)' -p 'Reply with "testing 123" only, using the gimme tool.'
 ```
 
 ## Quick start
@@ -71,19 +95,22 @@ pi -e npm:pi-gimme --gimme 'gimme(reply: string)' -p 'Reply with "testing 123"'
 Try this package locally:
 
 ```bash
-pi -e . --gimme 'gimme(reply: string)' -p 'Reply with "testing 123"'
+pi -e . --gimme 'gimme(reply: string)' -p 'Reply with "testing 123" only, using the gimme tool.'
+```
+
+Expected output:
+
+```json
+{"_tool":"gimme","reply":"testing 123"}
 ```
 
 ## Package contents
 
 | Path | Purpose |
 |---|---|
-| `extensions/` | Pi TypeScript extension entrypoints (`*.ts` and `index.ts`) |
-| `lib/` | Shared TypeScript helpers |
-| `skills/` | Agent Skills |
-| `prompts/` | Prompt templates |
-| `themes/` | Pi themes |
-| `docs/` | Optional supporting docs (usage, examples, release, ADRs) |
+| `extensions/` | Pi TypeScript extension entrypoints |
+| `lib/` | Shared TypeScript helpers (signature parser, schema mapping, validation runner, flag collection) |
+| `docs/` | Optional supporting docs |
 
 ## Development
 
@@ -92,69 +119,11 @@ npm install
 npm run ci
 ```
 
-## Development flow
-
-Use this default flow when building a new Pi extension OSS project from this template:
-
-1. Create the Vault project notes under `4_Project/<ProjectName>/`.
-2. Add `CONTEXT.md`, `README.md`, `ROADMAP.md`, `Docs/`, `Issues/`, and `Progress/`.
-3. Write the PRD in `4_Project/<ProjectName>/Docs/`.
-4. Split approved tracer-bullet issues into `4_Project/<ProjectName>/Issues/`.
-5. Implement in the OSS repo.
-6. Run `npm run ci`, `npm test`, and `npm pack --dry-run`.
-7. Release with Trusted Publishing.
-8. Save release notes and follow-up decisions back to the Vault project.
-
-Short version:
-
-```txt
-Vault notes -> PRD -> Issues -> implement -> ci/check -> release -> save learnings
-```
-
-## Release
-
-This package is set up for npm Trusted Publishing, so no `NPM_TOKEN` is required.
-
-```bash
-npm version patch
-git push
-```
-
-Code pushes/merges run CI only. After separate release authorization, manually
-dispatch `auto-release.yml` on `main`, or use an explicitly authorized version tag
-or published release. Ordinary maintenance verification must not publish.
-
-See [`docs/release.md`](docs/release.md) for setup details.
-
-## Docs
-
-`docs/` is optional supporting documentation, not a fixed six-file set. README stays the GitHub/npm entrypoint; add `docs/*.md` only when they help users or maintainers.
-
-After creating a repository from this template:
-
-1. Follow [`docs/template-checklist.md`](docs/template-checklist.md) for setup.
-2. Run the **post-generation docs cleanup** in that checklist: delete or merge template bootstrap docs that no longer add project value.
-
-Useful docs to keep when they add value:
-
-- [`docs/examples.md`](docs/examples.md) — examples for extensions, skills, prompts, and themes
-- [`docs/release.md`](docs/release.md) — Trusted Publishing details (README Release summarizes the flow)
-- `docs/usage.md` — create when usage does not fit in README
-
-Optional maintainer guidance (not a public-user navigation target in mature repos):
-
-- [`docs/template-checklist.md`](docs/template-checklist.md)
-
-Template bootstrap docs to delete or merge after setup unless they still teach something project-specific:
-
-- `docs/github-template.md`
-- `docs/repository-settings.md`
-- `docs/template-sync.md` — monorepo maintainer notes for refreshing the bundled CLI template
-- `docs/typescript.md`
+`npm run ci` runs typecheck, unit tests, the Pi-host smoke harness, and a pack check.
 
 ## Security
 
-Pi packages can execute code with your local permissions. Review extensions before installing third-party packages.
+Pi packages can execute code with your local permissions. Review extensions before installing third-party packages. The `{ ... }` validation block also runs as JavaScript with your local permissions.
 
 For vulnerability reporting, see [`SECURITY.md`](SECURITY.md).
 

@@ -1,10 +1,10 @@
 ## 1. Template stripping and package reset
 
-- [ ] 1.1 Delete template example extensions (`extensions/hello.ts`, `extensions/tui-dashboard.ts`, `extensions/skill-bridge/`, `extensions/package-layout/`) and template lib helpers (`lib/greeting.ts`, `lib/format-table.ts`, `lib/config-contract.ts`, `lib/error-contract.ts`); verify `git status` shows only intended deletions
-- [ ] 1.2 Delete template example resources (`skills/`, `prompts/`, `themes/`), template-only docs (`docs/template-checklist.md`, `docs/template-sync-checklist.md`, `docs/template-sync.md`, `docs/publish-rerun-rollout.md`, `docs/pi-sdk-compatibility.md`, `docs/release.md`, `docs/examples.md`), and `CHANGELOG.md`; verify they are gone from the working tree
-- [ ] 1.3 Reset `package.json` to version `0.1.0`, remove `private: true`, set `pi.extensions` to `["./extensions/index.ts"]`, trim `files` to `extensions/`, `lib/`, `docs/`, `README.md`, `LICENSE`, `SECURITY.md`, and update `description`/`keywords`; verify `npm pack --dry-run` lists only intended files
-- [ ] 1.4 Clean `.github/workflows/` of `create-pi-extension` monorepo references (publish/auto-release paths) and keep a minimal CI; verify workflows reference only paths that exist in this repo
-- [ ] 1.5 Update `README.md` so install/usage/development sections match the implemented behavior (keep the product vision; align the quickstart prompt and package-contents table); verify README examples match the smoke test
+- [x] 1.1 Delete template example extensions (`extensions/hello.ts`, `extensions/tui-dashboard.ts`, `extensions/skill-bridge/`, `extensions/package-layout/`) and template lib helpers (`lib/greeting.ts`, `lib/format-table.ts`, `lib/config-contract.ts`, `lib/error-contract.ts`); verify `git status` shows only intended deletions
+- [x] 1.2 Delete template example resources (`skills/`, `prompts/`, `themes/`), template-only docs (`docs/template-checklist.md`, `docs/template-sync-checklist.md`, `docs/template-sync.md`, `docs/publish-rerun-rollout.md`, `docs/pi-sdk-compatibility.md`, `docs/release.md`, `docs/examples.md`), and `CHANGELOG.md`; verify they are gone from the working tree
+- [x] 1.3 Reset `package.json` to version `0.1.0`, remove `private: true`, set `pi.extensions` to `["./extensions/index.ts"]`, trim `files` to `extensions/`, `lib/`, `docs/`, `README.md`, `LICENSE`, `SECURITY.md`, and update `description`/`keywords`; verify `npm pack --dry-run` lists only intended files
+- [x] 1.4 Clean `.github/workflows/` of `create-pi-extension` monorepo references (publish/auto-release paths) and keep a minimal CI; verify workflows reference only paths that exist in this repo
+- [x] 1.5 Update `README.md` so install/usage/development sections match the implemented behavior (keep the product vision; align the quickstart prompt and package-contents table); verify README examples match the smoke test
 
 ## 2. Signature parser
 

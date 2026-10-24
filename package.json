@@ -1,15 +1,15 @@
 {
   "name": "pi-gimme",
-  "version": "0.3.1",
+  "version": "0.1.0",
   "description": "Extract structured data from a pi session",
   "type": "module",
-  "private": true,
   "license": "MIT",
   "author": "Tanner Hobson",
   "keywords": [
     "pi-package",
     "pi",
-    "agent-skill",
+    "structured-data",
+    "tools",
     "typescript"
   ],
   "repository": {
@@ -23,39 +23,21 @@
   "files": [
     "extensions/",
     "lib/",
-    "skills/",
-    "prompts/",
-    "themes/",
     "docs/",
     "README.md",
     "LICENSE",
-    "SECURITY.md",
-    "CHANGELOG.md"
+    "SECURITY.md"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/greeting.test.mjs tests/format-table.test.mjs tests/config-contract.test.mjs tests/error-contract.test.mjs tests/smoke.test.mjs tests/review-guardrails.test.mjs tests/extension-entrypoints.test.mjs tests/pi-sdk-smoke-contract.test.mjs tests/release-trigger-contract.test.mjs",
-    "ci": "npm run typecheck && npm test && npm run smoke:pi && npm run review:guardrails && npm run pack:check",
-    "review:guardrails": "node scripts/check-review-guardrails.mjs",
+    "test": "node --test tests/parser.test.mjs tests/schema.test.mjs tests/validate.test.mjs tests/flags.test.mjs tests/extension.test.mjs",
+    "ci": "npm run typecheck && npm test && npm run smoke:pi && npm run pack:check",
     "smoke:pi": "node scripts/pi-sdk-smoke.mjs",
     "pack:check": "npm pack --dry-run"
   },
   "pi": {
     "extensions": [
-      "./extensions/hello.ts",
-      "./extensions/index.ts",
-      "./extensions/tui-dashboard.ts",
-      "./extensions/skill-bridge/index.ts",
-      "./extensions/package-layout/index.ts"
-    ],
-    "skills": [
-      "./skills"
-    ],
-    "prompts": [
-      "./prompts"
-    ],
-    "themes": [
-      "./themes"
+      "./extensions/index.ts"
     ]
   },
   "peerDependencies": {
