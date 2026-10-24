@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish create-pi-extension
+    name: Publish pi-gimme
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +38,8 @@ jobs:
         id: published
         shell: bash
         run: |
-          name=$(node -p "require('./packages/create-pi-extension/package.json').name")
-          version=$(node -p "require('./packages/create-pi-extension/package.json').version")
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
           encoded_name="${name//\//%2F}"
           package_url="https://registry.npmjs.org/${encoded_name}"
           version_url="${package_url}/${version}"
@@ -49,8 +49,7 @@ jobs:
             404)
               echo "Package ${name} is not registered on npm yet (registry returned 404 for the package name)."
               echo "This is not the same as an already-published version skip. First publish requires npm Trusted Publisher setup for ${name} on npmjs.com."
-              echo "Configure: Publisher GitHub Actions, repository eiei114/pi-extension-template, workflow filename publish.yml."
-              echo "See docs/release.md#first-publish--trusted-publisher-not-configured"
+              echo "Configure: Publisher GitHub Actions, repository player1537/pi-gimme, workflow filename publish.yml."
               echo "Continuing to npm publish ${name}@${version}; without Trusted Publisher, npm publish fails with E404 Not Found on PUT."
               echo "skip=false" >> "$GITHUB_OUTPUT"
               ;;
@@ -83,24 +82,11 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Sync bundled template
-        run: npm run sync:template
-
       - name: Validate package
         run: npm run ci
-
-      - name: Verify publish tarball includes bundled template
-        shell: bash
-        run: |
-          cd packages/create-pi-extension
-          npm pack --dry-run 2>&1 | tee /tmp/pack.txt
-          grep -q 'template/' /tmp/pack.txt
 
       - name: Setup npm Trusted Publishing
         if: steps.published.outputs.skip != 'true'
@@ -114,9 +100,8 @@ jobs:
         if: steps.published.outputs.skip != 'true'
         run: npm install -g npm@latest
 
-      - name: Publish create-pi-extension to npm
+      - name: Publish pi-gimme to npm
         if: steps.published.outputs.skip != 'true'
-        working-directory: packages/create-pi-extension
         shell: bash
         run: |
           set +e
@@ -126,10 +111,8 @@ jobs:
           if [ "$publish_status" -ne 0 ]; then
             if echo "$publish_output" | grep -q 'npm error code E404'; then
               echo "::error::npm publish failed with E404 Not Found."
-              echo "Diagnosis: create-pi-extension is not registered on npm, or Trusted Publisher is not configured for this repository/workflow."
-              echo "This is different from publish intentionally skipped (version already on npm)."
-              echo "Action: npmjs.com -> create-pi-extension -> Trusted Publisher -> GitHub Actions -> eiei114/pi-extension-template -> publish.yml"
-              echo "See docs/release.md#first-publish--trusted-publisher-not-configured"
+              echo "Diagnosis: pi-gimme is not registered on npm, or Trusted Publisher is not configured for this repository/workflow."
+              echo "Action: npmjs.com -> pi-gimme -> Trusted Publisher -> GitHub Actions -> player1537/pi-gimme -> publish.yml"
             fi
             exit "$publish_status"
           fi
