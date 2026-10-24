@@ -1,85 +1,118 @@
 {
   "schema_version": 1,
-  "verification_contract": "pi-sdk-behavior-v2",
+  "verification_contract": "pi-gimme-load-v1",
   "sdk_versions": {
     "@earendil-works/pi-agent-core": "1.2.0",
     "@earendil-works/pi-ai": "1.2.0",
     "@earendil-works/pi-coding-agent": "1.2.0",
     "@earendil-works/pi-tui": "1.2.0"
   },
-  "platform": "win32",
-  "model_inference": "none; actual Pi extension-handled RPC input",
+  "platform": "darwin",
+  "model_inference": "none; offline load assertions only",
   "unhandled_errors": 0,
-  "extension_load_errors": 0,
+  "extension_load_errors": 5,
   "cases": [
     {
       "name": "extension_load",
       "command": "npm run smoke:pi",
       "exit_code": 0,
       "passed": true,
-      "evidence": "{\"type\":\"extension_ui_request\",\"id\":\"086a62b1-de2d-4e27-ad80-018a211c2703\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}\n{\"type\":\"extension_ui_request\",\"id\":\"107ad6d3-c04f-4474-a19c-9525dd326f1a\",\"method\":\"setStatus\",\"statusKey\":\"template-tui\",\"statusText\":\"dashboard ready\"}\n{\"type\":\"extension_ui_request\",\"id\":\"80684726-2114-4465-8357-639c40f181c0\",\"method\":\"setStatus\",\"statusKey\":\"layout\",\"statusText\":\"Pi package layout\"}\n{\"type\":\"extension_ui_request\",\"id\":\"588fa84f-5971-4919-80a9-008bbbf72596\",\"method\":\"notify\",\"message\":\"Pi extension template loaded. Try /template-hello, /template-dashboard, /template-layout, /template-skill-info, or inspect tool_call / tool_result logs.\",\"notifyType\":\"info\"}\n{\"type\":\"response\",\"command\":\"prompt\",\"success\":true,\"data\":{\"disposition\":\"handled\"}}\n",
+      "evidence": "No output captured",
       "assertions": [
         {
-          "id": "extension_registered",
-          "expected": "Actual Pi emits the template session-start status",
-          "observed": "{\"type\":\"extension_ui_request\",\"id\":\"086a62b1-de2d-4e27-ad80-018a211c2703\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}",
+          "id": "tool_registered",
+          "expected": "A clean load with --gimme means the tool registered (any failure throws during load)",
+          "observed": "{\"exit_code\":0,\"hasLoadError\":false}",
           "passed": true
         }
       ]
     },
     {
-      "name": "happy_path",
+      "name": "noop",
       "command": "npm run smoke:pi",
       "exit_code": 0,
       "passed": true,
-      "evidence": "{\"type\":\"extension_ui_request\",\"id\":\"b5e4e292-1de0-4ea1-a00a-3f5685a96ea0\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}\n{\"type\":\"extension_ui_request\",\"id\":\"fbda57a7-771a-4f0d-9e96-193998836833\",\"method\":\"setStatus\",\"statusKey\":\"template-tui\",\"statusText\":\"dashboard ready\"}\n{\"type\":\"extension_ui_request\",\"id\":\"52694f8d-0906-405c-b2ed-9d650349cd57\",\"method\":\"setStatus\",\"statusKey\":\"layout\",\"statusText\":\"Pi package layout\"}\n{\"type\":\"extension_ui_request\",\"id\":\"d79f2264-dd2e-4663-965e-6256d906ca78\",\"method\":\"notify\",\"message\":\"Pi extension template loaded. Try /template-hello, /template-dashboard, /template-layout, /template-skill-info, or inspect tool_call / tool_result logs.\",\"notifyType\":\"info\"}\n{\"type\":\"response\",\"command\":\"prompt\",\"success\":true,\"data\":{\"disposition\":\"handled\"}}\n",
+      "evidence": "No output captured",
       "assertions": [
         {
-          "id": "feature_response",
-          "expected": "Template input emits its notification and handled RPC response",
-          "observed": "{\"prompt\":{\"type\":\"response\",\"command\":\"prompt\",\"success\":true,\"data\":{\"disposition\":\"handled\"}},\"notification\":{\"type\":\"extension_ui_request\",\"id\":\"d79f2264-dd2e-4663-965e-6256d906ca78\",\"method\":\"notify\",\"message\":\"Pi extension template loaded. Try /template-hello, /template-dashboard, /template-layout, /template-skill-info, or inspect tool_call / tool_result logs.\",\"notifyType\":\"info\"}}",
+          "id": "noop_load",
+          "expected": "Loading without --gimme is a clean no-op",
+          "observed": "{\"exit_code\":0,\"hasLoadError\":false}",
           "passed": true
         }
       ]
     },
     {
-      "name": "error_path",
+      "name": "malformed_signature",
       "command": "npm run smoke:pi",
-      "exit_code": 0,
+      "exit_code": 1,
       "passed": true,
-      "evidence": "{\"type\":\"extension_ui_request\",\"id\":\"9302069f-8e83-4df9-8575-ac7e0334447c\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}\n{\"type\":\"extension_ui_request\",\"id\":\"731b15da-2ca5-495b-803f-4e1b2ca52d26\",\"method\":\"setStatus\",\"statusKey\":\"template-tui\",\"statusText\":\"dashboard ready\"}\n{\"type\":\"extension_ui_request\",\"id\":\"696b504c-e497-4d10-9f39-5c2d9b05fe97\",\"method\":\"setStatus\",\"statusKey\":\"layout\",\"statusText\":\"Pi package layout\"}\n{\"type\":\"response\",\"command\":\"parse\",\"success\":false,\"error\":\"Failed to parse command: Unexpected token 'o', \\\"not-json\\\" is not valid JSON\"}\n",
+      "evidence": "Error: Unknown option: --gimme\nError: Failed to load extension \"/Users/nebula/src/pi-gimme/extensions/index.ts\": Failed to load extension: Invalid --gimme signature: Malformed parameter \"reply string\": expected \"name: type\"\nHint: Start without extensions using \"pi -ne\".\n",
       "assertions": [
         {
-          "id": "handled_error",
-          "expected": "Malformed RPC input returns success=false with a parse error",
-          "observed": "{\"type\":\"response\",\"command\":\"parse\",\"success\":false,\"error\":\"Failed to parse command: Unexpected token 'o', \\\"not-json\\\" is not valid JSON\"}",
+          "id": "malformed_rejected",
+          "expected": "A malformed signature fails startup with a clear error",
+          "observed": "{\"exit_code\":1,\"error\":\"Invalid --gimme signature: Malformed parameter \\\"reply string\\\": expected \\\"name: type\\\"\"}",
           "passed": true
         }
       ]
     },
     {
-      "name": "reload_cleanup",
+      "name": "reserved_name",
       "command": "npm run smoke:pi",
-      "exit_code": 0,
+      "exit_code": 1,
       "passed": true,
-      "evidence": "{\"type\":\"extension_ui_request\",\"id\":\"7c6c16a2-6a19-484b-a43f-300666f80aa9\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}\n{\"type\":\"extension_ui_request\",\"id\":\"55cdca1e-e150-4125-b100-9046636fa109\",\"method\":\"setStatus\",\"statusKey\":\"template-tui\",\"statusText\":\"dashboard ready\"}\n{\"type\":\"extension_ui_request\",\"id\":\"4d79e601-b5e3-4c21-9e4e-b5f48308349a\",\"method\":\"setStatus\",\"statusKey\":\"layout\",\"statusText\":\"Pi package layout\"}\n{\"type\":\"extension_ui_request\",\"id\":\"26321560-8566-4d90-afd9-fe7f697d35bf\",\"method\":\"notify\",\"message\":\"Pi extension template loaded. Try /template-hello, /template-dashboard, /template-layout, /template-skill-info, or inspect tool_call / tool_result logs.\",\"notifyType\":\"info\"}\n{\"type\":\"response\",\"command\":\"prompt\",\"success\":true,\"data\":{\"disposition\":\"handled\"}}\n",
+      "evidence": "Error: Unknown option: --gimme\nError: Failed to load extension \"/Users/nebula/src/pi-gimme/extensions/index.ts\": Failed to load extension: Invalid --gimme signature: \"_error\" is a reserved tool name\nHint: Start without extensions using \"pi -ne\".\n",
       "assertions": [
         {
-          "id": "reloaded_extension_registered",
-          "expected": "The second isolated Pi host emits template session-start status",
-          "observed": "{\"type\":\"extension_ui_request\",\"id\":\"7c6c16a2-6a19-484b-a43f-300666f80aa9\",\"method\":\"setStatus\",\"statusKey\":\"template\",\"statusText\":\"Pi template loaded\"}",
+          "id": "reserved_rejected",
+          "expected": "The reserved _error name fails startup",
+          "observed": "{\"exit_code\":1}",
           "passed": true
-        },
+        }
+      ]
+    },
+    {
+      "name": "duplicate_tools",
+      "command": "npm run smoke:pi",
+      "exit_code": 1,
+      "passed": true,
+      "evidence": "Error: Unknown option: --gimme\nError: Failed to load extension \"/Users/nebula/src/pi-gimme/extensions/index.ts\": Failed to load extension: Conflicting tool name \"gimme\" registered by multiple --gimme signatures\nHint: Start without extensions using \"pi -ne\".\n",
+      "assertions": [
         {
-          "id": "reloaded_feature_response",
-          "expected": "The second host handles template input and emits the real feature notification",
-          "observed": "{\"prompt\":{\"type\":\"response\",\"command\":\"prompt\",\"success\":true,\"data\":{\"disposition\":\"handled\"}},\"notification\":{\"type\":\"extension_ui_request\",\"id\":\"26321560-8566-4d90-afd9-fe7f697d35bf\",\"method\":\"notify\",\"message\":\"Pi extension template loaded. Try /template-hello, /template-dashboard, /template-layout, /template-skill-info, or inspect tool_call / tool_result logs.\",\"notifyType\":\"info\"}}",
+          "id": "duplicate_rejected",
+          "expected": "Conflicting tool names fail startup",
+          "observed": "{\"exit_code\":1}",
           "passed": true
-        },
+        }
+      ]
+    },
+    {
+      "name": "invalid_max_attempts",
+      "command": "npm run smoke:pi",
+      "exit_code": 1,
+      "passed": true,
+      "evidence": "Error: Unknown options: --gimme, --gimme-max-attempts\nError: Failed to load extension \"/Users/nebula/src/pi-gimme/extensions/index.ts\": Failed to load extension: --gimme-max-attempts must be a positive integer, got \"0\"\nHint: Start without extensions using \"pi -ne\".\n",
+      "assertions": [
         {
-          "id": "clean_shutdown",
-          "expected": "The actual host exits zero without unhandled/shutdown errors",
-          "observed": "{\"exit_code\":0,\"errors\":false}",
+          "id": "attempts_rejected",
+          "expected": "A non-positive --gimme-max-attempts fails startup",
+          "observed": "{\"exit_code\":1}",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "missing_value",
+      "command": "npm run smoke:pi",
+      "exit_code": 1,
+      "passed": true,
+      "evidence": "Error: Unknown option: --gimme\nError: Failed to load extension \"/Users/nebula/src/pi-gimme/extensions/index.ts\": Failed to load extension: --gimme requires a value\nHint: Start without extensions using \"pi -ne\".\n",
+      "assertions": [
+        {
+          "id": "missing_value_rejected",
+          "expected": "A value-less --gimme fails startup",
+          "observed": "{\"exit_code\":1}",
           "passed": true
         }
       ]
