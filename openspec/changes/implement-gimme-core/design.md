@@ -47,7 +47,7 @@ Pi automatically returns tool errors to the model for another attempt; the exten
 
 ### 6. Print-mode output: single-line JSON
 
-The tool's `execute` returns `content: [{ type: "text", text: JSON.stringify({ _tool: name, ...args }) }]`. In `-p` mode pi prints the final message, so a successful call yields `{"_tool":"gimme","title":"x","body":"y"}\n` (JSON.stringify is single-line; pi appends the newline). The `_tool` field lets callers distinguish which of several registered tools produced the output. On exhaustion the tool returns `JSON.stringify({ _tool: "_error", _error: "exhaustion", message })` where `message` is the last validation error (spec: Print-mode output).
+The tool's `execute` returns `content: [{ type: "text", text: JSON.stringify({ _tool: name, ...args }) }]`. `-p` mode prints the **final assistant message's text**, not the tool result, so the extension substitutes the JSON for the model's next plain-text message via a `message_end` handler (replacement keeps the assistant role; the session mutates the message in place, so agent state, the persisted transcript, and `-p` output all agree). Messages that carry further tool calls are left untouched. A successful call therefore yields `{"_tool":"gimme","title":"x","body":"y"}\n` (JSON.stringify is single-line; pi appends the newline). The `_tool` field lets callers distinguish which of several registered tools produced the output. On exhaustion the tool returns `JSON.stringify({ _tool: "_error", _error: "exhaustion", message })` where `message` is the last validation error (spec: Print-mode output).
 
 ### 7. Package layout and template stripping
 
@@ -74,4 +74,4 @@ This is a new package (no prior release of `pi-gimme` exists — the 0.3.x histo
 
 - **Exit code on validation exhaustion**: pi controls the process exit code; making `-p` exit non-zero on failure may require pi-side support. Deferred — the spec only requires the error message as output.
 - **Exact pi behavior on duplicate tool registration** (throw vs silent replace): verify during implementation; the spec requires a clear startup error either way.
-- **Whether `-p` prints model preamble text before the tool result**: verify in the smoke test; adjust system-prompt wording if needed (the README's example prompt is explicitly not gospel).
+- **Whether `-p` prints model preamble text before the tool result**: resolved — `-p` prints the final assistant message, so the `message_end` substitution (Decision 6) makes the output exactly the tool result regardless of model preamble. Verified end-to-end against a real model (see `docs/quickstart-verification.md`).
