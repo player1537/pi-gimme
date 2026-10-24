@@ -8,17 +8,31 @@
 [![Pi package](https://img.shields.io/badge/pi-package-purple.svg)](https://pi.dev/packages)
 [![Trusted Publishing](https://img.shields.io/badge/npm-Trusted%20Publishing-blue.svg)](docs/release.md)
 
-> One-line pitch for this TypeScript-first Pi package.
+> Extract structured data from Pi without constraining the thinking process.
 
 ## What this is
 
-Briefly explain what this TypeScript-first package adds to Pi and who should use it.
+Telling an AI "your response will be used as a GitHub PR comment" sometimes yields bad results, like prefixing the response with unhelpful text like "Got it. Writing a PR comment..."
+
+The idea of this package is to give the model a tool to output structured content to the user. At its core, this is really simple: just give it a tool `gimme()` and whatever that outputs is what you return.
+
+In practice, there are a few times that some special care will be needed. For example, if the model forgets to call the tool as the last response, then it should be prodded to call the tool.
+
+There might also be some validation needs. For example, maybe a PR comment should not start with a `#` character because it will get interpreted as a Markdown title.
 
 ## Features
 
-- Feature 1
-- Feature 2
-- Feature 3
+- `pi --gimme 'gimme(title: string, body: string)'`
+
+  > Simple usage: just give me a JSON object with a title and a body property. Gives the model a tool called `gimme` that takes arguments matching that shape.
+
+- `pi --gimme 'make_github_issue(title: string, body: string)'`
+
+  > Give a special name (`submit_pr_comment`) to the tool.
+
+- `pi --gimme 'submit_pr_comment(body: string) { const number = body.search(/\b#[0-9]\w*/); if (number) throw "GitHub treats " + number + " as a reference to an Issue or PR. Replace # with No. (as in No. 123) if this is unintentional. Otherwise, prefix with organization/repo (as in foo-org/bar-repo#123)."; }'`
+
+  > Validation along with model guidance. Thrown strings get sent to the model and another attempt is given.
 
 ## Install
 
@@ -26,13 +40,6 @@ Install the published npm package with Pi:
 
 ```bash
 pi install npm:pi-gimme
-```
-
-Replace `pi-gimme` with the exact `name` from `package.json`.
-For a scoped npm package, keep the `npm:` prefix:
-
-```bash
-pi install npm:@your-scope/your-pi-package
 ```
 
 Pin a specific version when you want reproducible installs:
@@ -56,7 +63,7 @@ pi install git:github.com/player1537/pi-gimme
 Try it without permanently installing:
 
 ```bash
-pi -e npm:pi-gimme
+pi -e npm:pi-gimme --gimme '...'
 ```
 
 ## Quick start
@@ -64,13 +71,7 @@ pi -e npm:pi-gimme
 Try this package locally:
 
 ```bash
-pi -e .
-```
-
-Then run:
-
-```txt
-/your-command
+pi -e . --gimme '...'
 ```
 
 ## Package contents
