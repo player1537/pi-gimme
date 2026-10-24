@@ -1,7 +1,5 @@
 # pi-gimme
 
-[![Join dotfield.xyz on Discord](https://img.shields.io/badge/Join%20dotfield.xyz%20on%20Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/4945dXZVW5)
-
 [![CI](https://github.com/player1537/pi-gimme/actions/workflows/ci.yml/badge.svg)](https://github.com/player1537/pi-gimme/actions/workflows/ci.yml)
 [![Publish](https://github.com/player1537/pi-gimme/actions/workflows/publish.yml/badge.svg)](https://github.com/player1537/pi-gimme/actions/workflows/publish.yml)
 [![npm version](https://img.shields.io/npm/v/pi-gimme.svg)](https://www.npmjs.com/package/pi-gimme)
@@ -9,7 +7,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pi package](https://img.shields.io/badge/pi-package-purple.svg)](https://pi.dev/packages)
 [![Trusted Publishing](https://img.shields.io/badge/npm-Trusted%20Publishing-blue.svg)](docs/release.md)
-<a href="https://buymeacoffee.com/ekawano114m"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="217" height="60"></a>
 
 > One-line pitch for this TypeScript-first Pi package.
 
