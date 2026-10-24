@@ -18,7 +18,7 @@ The idea of this package is to give the model a tool to output structured conten
 
 In practice, there are a few times that some special care will be needed. For example, if the model forgets to call the tool as the last response, then it should be prodded to call the tool.
 
-There might also be some validation needs. For example, maybe a PR comment should not start with a `#` character because it will get interpreted as a Markdown title.
+There might also be some validation needs. For example, maybe a PR comment should not contain `#123` because GitHub will interpret it as a reference to an Issue or PR.
 
 ## Features
 
@@ -26,13 +26,13 @@ There might also be some validation needs. For example, maybe a PR comment shoul
 
   > Simple usage: just give me a JSON object with a title and a body property. Gives the model a tool called `gimme` that takes arguments matching that shape.
 
-- `pi --gimme 'make_github_issue(title: string, body: string)'`
+- `pi --gimme 'submit_pr_comment(body: string)'`
 
   > Give a special name (`submit_pr_comment`) to the tool.
 
-- `pi --gimme 'submit_pr_comment(body: string) { const number = body.search(/\b#[0-9]\w*/); if (number) throw "GitHub treats " + number + " as a reference to an Issue or PR. Replace # with No. (as in No. 123) if this is unintentional. Otherwise, prefix with organization/repo (as in foo-org/bar-repo#123)."; }'`
+- `pi --gimme 'submit_pr_comment(body: string) { const match = body.match(/(?<!\w)#\d+\w*/); if (match) throw new Error("GitHub treats " + match[0] + " as a reference to an Issue or PR. Replace # with No. (as in No. 123) if this is unintentional. Otherwise, prefix with organization/repo (as in foo-org/bar-repo#123)."); }'`
 
-  > Validation along with model guidance. Thrown strings get sent to the model and another attempt is given.
+  > Validation along with model guidance. Thrown errors get sent to the model and another attempt is given.
 
 ## Install
 
@@ -63,7 +63,7 @@ pi install git:github.com/player1537/pi-gimme
 Try it without permanently installing:
 
 ```bash
-pi -e npm:pi-gimme --gimme '...'
+pi -e npm:pi-gimme --gimme 'gimme(reply: string)' -p 'Reply with "testing 123"'
 ```
 
 ## Quick start
@@ -71,7 +71,7 @@ pi -e npm:pi-gimme --gimme '...'
 Try this package locally:
 
 ```bash
-pi -e . --gimme '...'
+pi -e . --gimme 'gimme(reply: string)' -p 'Reply with "testing 123"'
 ```
 
 ## Package contents
