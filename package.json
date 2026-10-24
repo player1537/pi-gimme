@@ -1,0 +1,80 @@
+{
+  "name": "pi-gimme",
+  "version": "0.3.1",
+  "description": "Extract structured data from a pi session",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Tanner Hobson",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "agent-skill",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/player1537/pi-gimme"
+  },
+  "bugs": {
+    "url": "https://github.com/player1537/pi-gimme/issues"
+  },
+  "homepage": "https://github.com/player1537/pi-gimme#readme",
+  "files": [
+    "extensions/",
+    "lib/",
+    "skills/",
+    "prompts/",
+    "themes/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/greeting.test.mjs tests/format-table.test.mjs tests/config-contract.test.mjs tests/error-contract.test.mjs tests/smoke.test.mjs tests/review-guardrails.test.mjs tests/extension-entrypoints.test.mjs tests/pi-sdk-smoke-contract.test.mjs tests/release-trigger-contract.test.mjs",
+    "ci": "npm run typecheck && npm test && npm run smoke:pi && npm run review:guardrails && npm run pack:check",
+    "review:guardrails": "node scripts/check-review-guardrails.mjs",
+    "smoke:pi": "node scripts/pi-sdk-smoke.mjs",
+    "pack:check": "npm pack --dry-run"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/hello.ts",
+      "./extensions/index.ts",
+      "./extensions/tui-dashboard.ts",
+      "./extensions/skill-bridge/index.ts",
+      "./extensions/package-layout/index.ts"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts"
+    ],
+    "themes": [
+      "./themes"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-agent-core": "*",
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
+  },
+  "overrides": {
+    "protobufjs": ">=7.6.3 <8.0.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-agent-core": "1.2.0",
+    "@earendil-works/pi-ai": "1.2.0",
+    "@earendil-works/pi-coding-agent": "1.2.0",
+    "@earendil-works/pi-tui": "1.2.0",
+    "@types/node": "^26.6.4",
+    "typebox": "latest",
+    "typescript": "^7.0.2"
+  }
+}
